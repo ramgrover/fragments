@@ -11,5 +11,8 @@
     "url": "git+https://github.com/ramgrover/fragments.git"
   },
   "author": "Ram Grover",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "prettier": "3.4.2"
+  }
 }
