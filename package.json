@@ -4,8 +4,10 @@
   "version": "0.0.1",
   "description": "Fragments back-end API",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint \"./src/**/*.js\"",
+    "test:watch": "jest -c jest.config.js --runInBand --watch --",
+    "test": "jest -c jest.config.js --runInBand --",
+    "coverage": "jest -c jest.config.js --runInBand --coverage",
+    "lint": "eslint \"./src/**/*.js\" \"tests/**/*.js\"",
     "start": "node src/index.js",
     "dev": "cross-env LOG_LEVEL=debug nodemon ./src/index.js --watch src",
     "debug": "cross-env LOG_LEVEL=debug nodemon --inspect=0.0.0.0:9229 ./src/index.js --watch src"
@@ -21,8 +23,10 @@
     "cross-env": "^7.0.3",
     "eslint": "^9.18.0",
     "globals": "^15.14.0",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.9",
-    "prettier": "3.4.2"
+    "prettier": "3.4.2",
+    "supertest": "^7.0.0"
   },
   "dependencies": {
     "aws-jwt-verify": "^5.0.0",
@@ -33,6 +37,8 @@
     "express": "^4.21.2",
     "fragments": "file:",
     "helmet": "^8.0.0",
+    "http-auth": "^4.2.0",
+    "http-auth-passport": "^1.0.7",
     "jq": "^1.7.2",
     "passport": "^0.7.0",
     "passport-http-bearer": "^1.0.1",
