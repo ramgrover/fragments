@@ -1,15 +1,14 @@
-// src/app.js
-
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const passport = require('passport');
+
 const authenticate = require('./auth');
+const { createSuccessResponse, createErrorResponse } = require('./response');
 
 // author and version from our package.json file
-// TODO: make sure you have updated your name in the `author` section
-require('../package.json');
+const { author, version } = require('../package.json');
 
 const logger = require('./logger');
 const pino = require('pino-http')({
@@ -36,33 +35,26 @@ app.use(cors());
 // Use gzip/deflate compression middleware
 app.use(compression());
 
-// Define a simple health check route. If the server is running
-// we'll respond with a 200 OK.  If not, the server isn't healthy.
-// app.get('/', (req, res) => {
-//   // Clients shouldn't cache this response (always request it fresh)
-//   // See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching#controlling_caching
-//   res.setHeader('Cache-Control', 'no-cache');
+// Define a simple health check route using createSuccessResponse
+app.get('/', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
+  res.status(200).json(
+    createSuccessResponse({
+      status: 'ok',
+      author,
+      githubUrl: 'https://github.com/ramgrover/fragments',
+      version,
+    })
+  );
+});
 
-//   // Send a 200 'OK' response with info about our repo
-//   res.status(200).json({
-//     status: 'ok',
-//     author,
-//     // TODO: change this to use your GitHub username!
-//     githubUrl: 'https://github.com/ramgrover/fragments',
-//     version,
-//   });
-// });
 app.use('/', require('./routes'));
 
 // Add 404 middleware to handle any requests for resources that can't be found
 app.use((req, res) => {
-  res.status(404).json({
-    status: 'error',
-    error: {
-      message: 'not found',
-      code: 404,
-    },
-  });
+  res.status(404).json(
+    createErrorResponse(404, 'not found')
+  );
 });
 
 // Add error-handling middleware to deal with anything else
@@ -78,13 +70,9 @@ app.use((err, req, res, next) => {
     logger.error({ err }, `Error processing request`);
   }
 
-  res.status(status).json({
-    status: 'error',
-    error: {
-      message,
-      code: status,
-    },
-  });
+  res.status(status).json(
+    createErrorResponse(status, message)
+  );
 });
 
 // Export our `app` so we can access it in server.js
