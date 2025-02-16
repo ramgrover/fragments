@@ -14,7 +14,12 @@ const router = express.Router();
  * Expose all of our API routes on /v1/* to include an API version.
  */
 router.use(`/v1`, authenticate(),require('./api'));
-
+router.use((req, res, next) => {
+  if (!req.headers['content-type']) {
+    req.headers['content-type'] = 'text/plain';
+ }
+next();
+});
 /**
  * Define a simple health check route. If the server is running
  * we'll respond with a 200 OK.  If not, the server isn't healthy.

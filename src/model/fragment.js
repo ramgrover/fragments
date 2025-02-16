@@ -50,7 +50,7 @@ class Fragment {
   }
 
   async getData() {
-    return readFragmentData(this.ownerId, this.id);
+    return await readFragmentData(this.ownerId, this.id);
   }
 
   async setData(data) {

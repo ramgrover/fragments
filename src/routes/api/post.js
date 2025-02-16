@@ -18,6 +18,7 @@ module.exports = async (req, res) => {
 
   // Ensure req.body is a Buffer
   const fragData = req.body;
+  console.log("This is from backend" +fragData);
   if (!Buffer.isBuffer(fragData)) {
     logger.warn('Invalid content format. Expected Buffer.');
     return res.status(415).json(createErrorResponse(415, 'The content format for fragment must be a binary buffer.'));
@@ -26,11 +27,13 @@ module.exports = async (req, res) => {
   const { user: ownerId } = req;
 
   try {
+    
     logger.debug('Attempting to create a new fragment');
     const fragment = new Fragment({ ownerId, type: contentType });
     await fragment.save();
     logger.info(`Fragment metadata saved. ID: ${fragment.id}, Owner: ${ownerId}`);
-
+    const savedFragment = await fragment.save();  // Save the fragment
+    logger.info('Saved fragment:', savedFragment);
     await fragment.setData(fragData);
     logger.info(`Fragment data saved. ID: ${fragment.id}, Size: ${fragment.size} bytes`);
 
