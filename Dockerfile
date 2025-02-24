@@ -1,40 +1,50 @@
-# This is a text file that will define all of the Docker instructions necessary for Docker Engine to build an image of your service.
-# Use node version 21.6.0
-FROM node:21.6.0
+# Build stage
+FROM node:21.6.0-alpine AS build
 
 LABEL maintainer="Ram Grover <rgrover13@myseneca.ca>"
 LABEL description="Fragments node.js microservice"
 
-# We default to use port 8080 in our service
-ENV PORT=8080
-
-# Reduce npm spam when installing within Docker
-# https://docs.npmjs.com/cli/v8/using-npm/config#loglevel
-ENV NPM_CONFIG_LOGLEVEL=warn
-
-# Disable colour when run inside Docker
-# https://docs.npmjs.com/cli/v8/using-npm/config#color
-ENV NPM_CONFIG_COLOR=false
-
 # Use /app as our working directory
 WORKDIR /app
 
-# Option 3: explicit filenames - Copy the package.json and package-lock.json
-# files into the working dir (/app), using full paths and multiple source
-# files.  All of the files will be copied into the working dir `./app`
+# Copy package files
 COPY package.json package-lock.json ./
 
-# Install node dependencies defined in package-lock.json
-RUN npm install
+# Install dependencies using ci for more reliable builds
+# Only install production dependencies to keep the image smaller
+RUN npm ci --only=production
 
-# Copy src to /app/src/
+# Copy source code and necessary files
 COPY ./src ./src
-
-# Copy our HTPASSWD file
 COPY ./tests/.htpasswd ./tests/.htpasswd
 
-# Start the container by running our server
-CMD npm start
+# Runtime stage
+FROM node:21.6.0-alpine
 
-# We run our service on port 8080
+# Set environment variables
+ENV PORT=8080
+ENV NODE_ENV=production
+ENV NPM_CONFIG_LOGLEVEL=warn
+ENV NPM_CONFIG_COLOR=false
+
+# Create a non-root user to run the application
+RUN addgroup -S nodejs && adduser -S nodejs -G nodejs
+
+# Set working directory
+WORKDIR /app
+
+# Copy only necessary files from build stage
+COPY --from=build --chown=nodejs:nodejs /app ./
+
+# Use the non-root user
+USER nodejs
+
+# Expose the application port
 EXPOSE 8080
+
+# Add health check to ensure container is healthy
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/v1/health || exit 1
+
+# Start the application
+CMD ["node", "src/server.js"]
