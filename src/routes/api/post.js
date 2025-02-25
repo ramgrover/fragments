@@ -3,7 +3,7 @@ const { Fragment } = require('../../model/fragment');
 const logger = require('../../logger');
 
 // Define supported content types
-const SUPPORTED_TYPES = ['text/plain', 'text/markdown', 'application/octet-stream']; // Add more as needed
+const SUPPORTED_TYPES = ['text/plain', 'text/markdown', 'application/octet-stream', 'application/json']; // Add more as needed
 
 module.exports = async (req, res) => {
   logger.info(`Received POST request from user ${req.user}`);
@@ -25,7 +25,13 @@ module.exports = async (req, res) => {
   }
 
   const { user: ownerId } = req;
+  
 
+  // Validate the Content-Type for text/* or application/json
+  if (!contentType.startsWith('text/') && contentType !== 'application/json') {
+    logger.warn(`Unsupported content-type: ${contentType}`);
+    return res.status(415).json(createErrorResponse(415, 'Unsupported content-type. Allowed: text/*, application/json'));
+  }
   try {
     
     logger.debug('Attempting to create a new fragment');

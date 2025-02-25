@@ -41,7 +41,7 @@ describe('POST /v1/fragments', () => {
     const res = await request(app)
       .post('/v1/fragments')
       .auth('user1@email.com', 'password1')
-      .set('Content-Type', 'application/json') // Change this to any unsupported type
+      .set('Content-Type', 'image/jpeg') // Change this to any unsupported type
       .send('{}'); // Send an empty JSON object or a string
     const body = JSON.parse(res.text);
     expect(res.statusCode).toBe(415);
