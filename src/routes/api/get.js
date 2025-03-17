@@ -1,45 +1,33 @@
-const { createSuccessResponse } = require('../../response');
+const { createSuccessResponse, createErrorResponse } = require('../../response');
 const { Fragment } = require('../../model/fragment');
 const logger = require('../../logger');
 
 /**
- * Get a list of fragments for the current user
+ * Get a list of fragments for the current user.
+ * Supports `expand=1` to return full metadata instead of just fragment IDs.
  */
 module.exports = async (req, res) => {
+  logger.info(`Received GET request from user ${req.user}`);
+
+  // Check if `expand=1` is in the query parameters
+  const expandFlag = req.query['expand'] === '1';
+  const { user: ownerId } = req;
+
   try {
-    const { user: ownerId } = req;  // Get user ID from request object
-    logger.info(`Fetching fragments for user: ${ownerId}`);
+    logger.debug(`Attempting to fetch fragments for user: ${ownerId}, expand: ${expandFlag}`);
 
-    // Ensure the user is authenticated
-    if (!ownerId) {
-      logger.error('User authentication failed. No ownerId found.');
-      return res.status(401).json({
-        status: 'error',
-        error: { code: 401, message: 'Unauthorized' },
-      });
-    }
+    // Fetch fragments based on the expand flag
+    const fragments = await Fragment.byUser(ownerId, expandFlag);
 
-    // Fetch fragments for the user from the database
-    const fragments = await Fragment.byUser(ownerId);  // Use byUser method to get all fragments
+    // Log the number of fragments retrieved
+    logger.info(`Found ${fragments.length} fragments for user ${ownerId}`);
 
-    // If no fragments found, return an empty list
-    if (fragments.length === 0) {
-      logger.info('No fragments found for the user.');
-      return res.status(200).json(createSuccessResponse({ fragments: [] }));
-    }
-
-    // Successfully found fragments, log and send the data
-    logger.info(`Found ${fragments.length} fragments for user: ${ownerId}`);
-    return res.status(200).json(createSuccessResponse({ fragments }));
+    // Return response with fragments
+    res.status(200).json(createSuccessResponse({ fragments: [...fragments] }));
+    logger.info(`Successfully fetched fragments for user ${ownerId}`);
     
   } catch (error) {
-    logger.error('Error fetching fragments:', error);  // Log error details
-    return res.status(500).json({
-      status: 'error',
-      error: { 
-        code: 500,
-        message: 'An error occurred while fetching user fragments.',
-      },
-    });
+    logger.error(`Error occurred while fetching fragments for user ${ownerId}: ${error.message}`);
+    res.status(500).json(createErrorResponse(500, 'An error occurred while fetching user fragments.'));
   }
 };
