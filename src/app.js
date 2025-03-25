@@ -1,25 +1,26 @@
+// src/app.js
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
-const passport = require('passport');
-
-const authenticate = require('./auth');
-const { createSuccessResponse, createErrorResponse } = require('./response');
-
+const { createErrorResponse } = require('./response');
 // author and version from our package.json file
-const { author, version } = require('../package.json');
-
+//const { author, version } = require('../package.json');
 const logger = require('./logger');
 const pino = require('pino-http')({
   // Use our default logger instance, which is already configured
   logger,
 });
-
 // Create an express app instance we can use to attach middleware and HTTP routes
 const app = express();
+// modifications to src/app.js
+const passport = require('passport');
+const authenticate = require('./auth');
+// Use gzip/deflate compression middleware
 app.use(compression());
-
+app.use(express.json());
+// Set up our passport authentication middleware
 passport.use(authenticate.strategy());
 app.use(passport.initialize());
 
@@ -35,26 +36,60 @@ app.use(cors());
 // Use gzip/deflate compression middleware
 app.use(compression());
 
-// Define a simple health check route using createSuccessResponse
-app.get('/', (req, res) => {
-  res.setHeader('Cache-Control', 'no-cache');
-  res.status(200).json(
-    createSuccessResponse({
-      status: 'ok',
-      author,
-      githubUrl: 'https://github.com/ramgrover/fragments',
-      version,
-    })
-  );
+app.use('/', require('./routes'));
+
+app.get('/error', (req, res, next) => {
+  // Simulate an internal server error
+  next(new Error('Internal server error'));
 });
 
-app.use('/', require('./routes'));
+app.get('/bad-request', (req, res) => {
+  res.status(400).json({
+    status: 'error',
+    error: {
+      message: 'Bad Request',
+      code: 400,
+    },
+  });
+});
+
+app.get('/error-without-message', (req, res, next) => {
+  const error = new Error();
+  error.status = 503; // Simulate a server error with a specific status
+  next(error);
+});
+
+// Simulate unauthorized access
+app.get('/private-route', (req, res) => {
+  // Here you might normally check for authentication
+  res.status(401).json({
+    status: 'error',
+    error: {
+      message: 'Unauthorized access',
+      code: 401,
+    },
+  });
+});
+
+// Handle valid and invalid POST data
+app.post('/data-route', (req, res) => {
+  const { key } = req.body;
+  if (key === 'validData') {
+    res.status(200).json({ message: 'Data is valid' });
+  } else {
+    res.status(400).json({
+      status: 'error',
+      error: {
+        message: 'Invalid data',
+        code: 400,
+      },
+    });
+  }
+});
 
 // Add 404 middleware to handle any requests for resources that can't be found
 app.use((req, res) => {
-  res.status(404).json(
-    createErrorResponse(404, 'not found')
-  );
+  res.status(404).json(createErrorResponse(404, 'not found'));
 });
 
 // Add error-handling middleware to deal with anything else
@@ -70,9 +105,7 @@ app.use((err, req, res, next) => {
     logger.error({ err }, `Error processing request`);
   }
 
-  res.status(status).json(
-    createErrorResponse(status, message)
-  );
+  res.status(status).json(createErrorResponse(status, message));
 });
 
 // Export our `app` so we can access it in server.js
