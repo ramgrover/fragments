@@ -22,29 +22,23 @@ COPY ./tests/.htpasswd ./tests/.htpasswd
 FROM node:21.6.0-alpine
 
 # Set environment variables
-ENV PORT=8080
+ENV PORT=80
 ENV NODE_ENV=production
 ENV NPM_CONFIG_LOGLEVEL=warn
 ENV NPM_CONFIG_COLOR=false
-
-# Create a non-root user to run the application
-RUN addgroup -S nodejs && adduser -S nodejs -G nodejs
 
 # Set working directory
 WORKDIR /app
 
 # Copy only necessary files from build stage
-COPY --from=build --chown=nodejs:nodejs /app ./
+COPY --from=build /app ./
 
-# Use the non-root user
-USER nodejs
-
-# Expose the application port
-EXPOSE 8080
+# Expose the application port (80 instead of 8080)
+EXPOSE 80
 
 # Add health check to ensure container is healthy
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/v1/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:80/v1/health || exit 1
 
 # Start the application
 CMD ["node", "src/server.js"]
