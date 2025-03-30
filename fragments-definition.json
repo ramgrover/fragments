@@ -1,5 +1,5 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:us-east-1:860445579028:task-definition/fragments-task:2",
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:860445579028:task-definition/fragments-task:5",
     "containerDefinitions": [
         {
             "name": "fragments-container",
@@ -16,22 +16,10 @@
                 }
             ],
             "essential": true,
-            "environment": [
-                {
-                    "name": "AWS_COGNITO_POOL_ID",
-                    "value": "us-east-1_jVeUPPsrZ"
-                },
-                {
-                    "name": "API_URL",
-                    "value": "http://fragments-lb-2038917416.us-east-1.elb.amazonaws.com"
-                },
+            "environment": [    
                 {
                     "name": "PORT",
                     "value": "80"
-                },
-                {
-                    "name": "AWS_COGNITO_CLIENT_ID",
-                    "value": "72129gr4dk40q5s2ksh0lip6ss"
                 },
                 {
                     "name": "LOG_LEVEL",
