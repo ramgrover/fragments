@@ -96,7 +96,7 @@ jobs:
              API_URL=${{ secrets.API_URL }}
  
         - name: Deploy Amazon ECS task definition
-          uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+          uses: aws-actions/amazon-ecs-deploy-task-definition@v2
           with:
            task-definition: ${{ steps.update-task-def.outputs.task-definition }}
            cluster: fragments-cluster
