@@ -35,9 +35,7 @@ GET {{url}}
 user1@email.com:password1
 
 HTTP/1.1 200
-Content-Type: application/json; charset=utf-8
-Content-Length: 253
+Content-Type: text/plain
+Content-Length: 19
 [Asserts]
-jsonpath "$.status" == "ok"
-jsonpath "$.fragment.type" == "text/plain"
-jsonpath "$.fragment.size" == 19
+body == "This is a fragment!"
