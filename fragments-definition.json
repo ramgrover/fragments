@@ -22,6 +22,10 @@
                     "value": "80"
                 },
                 {
+                    "name": "AWS_S3_BUCKET_NAME",
+                    "value": "rgrover13-fragments"
+                  },
+                {
                     "name": "LOG_LEVEL",
                     "value": "debug"
                 }
