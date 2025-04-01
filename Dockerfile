@@ -22,7 +22,7 @@ COPY ./tests/.htpasswd ./tests/.htpasswd
 FROM node:21.6.0-alpine
 
 # Set environment variables
-ENV PORT=80
+ENV PORT=8080
 ENV NODE_ENV=production
 ENV NPM_CONFIG_LOGLEVEL=warn
 ENV NPM_CONFIG_COLOR=false
