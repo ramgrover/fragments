@@ -1,44 +1,61 @@
-# Build stage
-FROM node:21.6.0-alpine AS build
+# Stage 1: Build Stage
+FROM node:22-alpine AS builder
 
-LABEL maintainer="Ram Grover <rgrover13@myseneca.ca>"
-LABEL description="Fragments node.js microservice"
+LABEL maintainer="Ram Grover <rgrover13@myseneca.ca>" \
+      description="Fragments node.js microservice"
+
+# We default to use port 8080 in our service
+# Reduce npm spam when installing within Docker
+# Disable color when run inside Docker
+ENV PORT=8080 \
+    NPM_CONFIG_LOGLEVEL=warn \
+    NPM_CONFIG_COLOR=false \
+    NODE_ENV=production
 
 # Use /app as our working directory
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json ./
+#Copy all files starting with package name and .json type
+COPY package*.json ./
 
-# Install dependencies using ci for more reliable builds
-# Only install production dependencies to keep the image smaller
-RUN npm ci --only=production
+# Install dependencies and clean cache
+RUN npm ci --only=production && npm cache clean --force
 
-# Copy source code and necessary files
+# Copy src to /app/src/
 COPY ./src ./src
+
+# Copy our HTPASSWD file
 COPY ./tests/.htpasswd ./tests/.htpasswd
 
-# Runtime stage
-FROM node:21.6.0-alpine
 
-# Set environment variables
-ENV PORT=80
-ENV NODE_ENV=production
-ENV NPM_CONFIG_LOGLEVEL=warn
-ENV NPM_CONFIG_COLOR=false
 
-# Set working directory
+#--------------------------------------------------------------
+
+
+
+# Stage 2: Production Stage
+FROM node:22-alpine
+
+# Use /app as our working directory
 WORKDIR /app
 
-# Copy only necessary files from build stage
-COPY --from=build /app ./
+# Install curl and tini as the init process
+RUN apk add --no-cache curl=8.12.1-r1 tini=0.19.0-r3
 
-# Expose the application port (80 instead of 8080)
-EXPOSE 8080
+# Copy built files from builder stage
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/tests/.htpasswd ./tests/.htpasswd
 
-# Add health check to ensure container is healthy
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/v1/health || exit 1
+ENTRYPOINT ["/sbin/tini", "--"]
 
-# Start the application
-CMD ["node", "src/server.js"]
+# Start the container by running our server
+CMD ["npm", "start"]
+
+# We run our service on port 8080
+EXPOSE ${PORT}
+
+# Define an automated health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl --fail http://localhost:${PORT} || exit 1
