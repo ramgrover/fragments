@@ -24,7 +24,11 @@
                 {
                     "name": "LOG_LEVEL",
                     "value": "debug"
-                }
+                },
+                {
+                    "name": "AWS_S3_BUCKET_NAME",
+                    "value": "rgrover13-fragments"
+                  }
             ],
             "mountPoints": [],
             "volumesFrom": [],
