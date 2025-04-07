@@ -1,9 +1,9 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:us-east-1:860445579028:task-definition/fragments-task:12",
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:860445579028:task-definition/fragments-task:15",
     "containerDefinitions": [
         {
             "name": "fragments-container",
-            "image": "860445579028.dkr.ecr.us-east-1.amazonaws.com/fragments:v0.9.4",
+            "image": "860445579028.dkr.ecr.us-east-1.amazonaws.com/fragments:v0.9.5",
             "cpu": 256,
             "memory": 512,
             "portMappings": [
