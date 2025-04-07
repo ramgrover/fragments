@@ -27,7 +27,7 @@ router.post('/fragments', rawBody(), require('./post'));
 // Get fragment by ID
 router.get('/fragments/:id', require('../api/getByID'));
 router.get('/fragments/:id.:ext', require('./getByID')); // Fixed missing `/`
-router.get('/fragments/:id/info', require('./getByID'));
+router.get('/fragments/:id/info', require('./getByInfo'));
 //console.log('Delete route handler:', require('./delete'))
 router.delete('/fragments/:id', require('./delete'));
 module.exports = router;
