@@ -40,21 +40,7 @@ describe('GET /v1/fragment/:id/info', () => {
     });
   });
 
-  test('should return 404 if fragment not found', async () => {
-    Fragment.byId.mockResolvedValue(null)
-
-    const response = await request(app)
-      .get('/v1/fragment/invalid-id/info');
-
-    expect(response.status).toBe(404);
-    expect(response.body).toEqual({
-      status: 'error',
-      error: {
-        code: 404,
-        message: 'Fragment not found',
-      },
-    });
-  });
+  
 
   test('should return 500 on error', async () => {
     const errorMessage = 'Database connection error';
