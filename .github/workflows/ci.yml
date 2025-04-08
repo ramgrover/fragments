@@ -85,7 +85,7 @@ jobs:
               # NOTE: we need to install dev dependencies too vs. production only for hurl
               run: npm install
             - name: Build Containers
-              run: docker compose up -d
+              run: docker compose up --build -d
               #- name: Setup Local AWS Resources
             - name: Permission for Local AWS Setup Script
               # NOTE: this file needs to be made executable *before* you check into git:
