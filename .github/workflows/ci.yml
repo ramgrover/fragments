@@ -91,6 +91,8 @@ jobs:
               # NOTE: this file needs to be made executable *before* you check into git:
               # $ chmod +x ./scripts/local-aws-setup.sh
               run: chmod +x ./scripts/local-aws-setup.sh
+            - name: Setup Local AWS Resources
+              run: ./scripts/local-aws-setup.sh
             - name: Run Hurl Tests
               run: npm run test:integration
   
