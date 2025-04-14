@@ -30,7 +30,15 @@ module.exports = async (req, res) => {
             res.setHeader('Content-Length', fragment.size);
 
             // Send the data back
-            res.status(200).send(data);
+            res.status(200).json({
+                id: fragment.id,
+                name: fragment.name || null, // if name exists
+                type: fragment.type,
+                size: fragment.size,
+                created: fragment.created,
+                updated: fragment.updated,
+                value: data, // ✅ actual content
+              });
 
             logger.info(`Successfully sent fragment data for ID: ${id}`);
         } catch (dataError) {
