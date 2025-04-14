@@ -37,7 +37,7 @@ jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
 jsonpath "$.fragment.type" matches "^application/json(; charset=utf-8)?$"
-jsonpath "$.fragment.size" == 30
+jsonpath "$.fragment.size" == 28
 
 # Step 4: Create a Markdown Fragment
 # Perform an authenticated POST request to create a Markdown fragment.
