@@ -45,6 +45,7 @@
     "http-auth": "^4.2.0",
     "http-auth-passport": "^1.0.7",
     "jq": "^1.7.2",
+    "js-yaml": "^4.1.0",
     "markdown-it": "^14.1.0",
     "passport": "^0.7.0",
     "passport-http-bearer": "^1.0.1",
