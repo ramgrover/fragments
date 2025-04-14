@@ -23,7 +23,7 @@ describe('GET /fragments/:id', () => {
         const mockFragment = { 
             id: '123', 
             ownerId: 'user1', 
-            type: 'text/plain', 
+            type: 'text/plain; charset=utf-8', 
             size: testData.length, // Use the actual size of our test data
             getData: jest.fn().mockResolvedValue(testData)
         };
@@ -43,7 +43,7 @@ describe('GET /fragments/:id', () => {
     it('should return an existing fragment\'s data with the expected Content-Type', async () => {
         // Test different content types
         const testCases = [
-            { type: 'text/plain', data: 'Plain text content' },
+            { type: 'text/plain; charset=utf-8', data: 'Plain text content' },
             { type: 'text/html', data: '<p>HTML content</p>' },
             { type: 'application/json', data: '{"key": "JSON content"}' },
             { type: 'text/markdown', data: '# Markdown heading' },

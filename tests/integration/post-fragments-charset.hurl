@@ -17,7 +17,7 @@ jsonpath "$.fragment.id" matches "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-
 jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
-jsonpath "$.fragment.type" == "text/plain"
+jsonpath "$.fragment.type" == "text/plain; charset=utf-8"
 jsonpath "$.fragment.size" == 12
 
 # Capture the Location URL into a variable named `url`
@@ -30,7 +30,7 @@ GET {{url}}
 user1@email.com:password1
 
 HTTP/1.1 200
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
 Content-Length: 12
 [Asserts]
 body == "Hello World!"

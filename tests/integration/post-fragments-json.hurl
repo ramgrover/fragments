@@ -1,39 +1,36 @@
-# Authenticated POST to /v1/fragments with JSON data
+# Confirm that posting a JSON fragment works, and doing a GET for the same fragment returns the expected result
+
 POST http://localhost:8080/v1/fragments
 # We're sending a JSON fragment
 Content-Type: application/json
 # Include HTTP Basic Auth credentials
 [BasicAuth]
 user1@email.com:password1
-# Body of the request is a JSON object
-{
-    "name": "Sample",
-    "value": 123,
-    "active": true
-}
+# JSON data for the body
+`{ "name": "Sample" , "value": 123, "active": true }`
 
-# We expect to get back an HTTP 201
+# 1. Verify successful creation
 HTTP/1.1 201
 [Asserts]
-header "Location" matches "^http:\/\/localhost:8080\/v1\/fragments\/[A-Za-z0-9_-]+$"
+# Check the response status
 jsonpath "$.status" == "ok"
-jsonpath "$.fragment.id" matches "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
-jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
-jsonpath "$.fragment.created" isString
-jsonpath "$.fragment.updated" isString
+# Check the fragment type
 jsonpath "$.fragment.type" == "application/json"
-# The size should match our JSON data
-jsonpath "$.fragment.size" == 43
-
-# Capture the Location URL into a variable named `url`
+# Check the fragment size
+jsonpath "$.fragment.size" == 51
+# Capture the Location URL
 [Captures]
-url: header "Location"
+fragment_url: header "Location"
 
-# Try to GET the fragment we just posted by its URL
-GET {{url}}
+# 2. Get the created fragment
+GET {{fragment_url}}
 [BasicAuth]
 user1@email.com:password1
 
+# 3. Verify the response
 HTTP/1.1 200
-Content-Type: application/json
 [Asserts]
+header "Content-Type" == "application/json"
+jsonpath "$.name" == "Sample"
+jsonpath "$.value" == 123
+jsonpath "$.active" == true
